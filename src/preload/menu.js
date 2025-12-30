@@ -23,6 +23,8 @@ class Menu {
       performance: this.menu.querySelector("#performance-options"),
       client: this.menu.querySelector("#client-options"),
       scripts: this.menu.querySelector("#scripts-options"),
+      skins: this.menu.querySelector("#skins-options"),
+      cheats: this.menu.querySelector("#cheats-options"),
       about: this.menu.querySelector("#about-client"),
     };
   }
@@ -33,9 +35,9 @@ class Menu {
     menu.id = "juice-menu";
     menu.style.cssText =
       "z-index: 99999999; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);";
-	const menuCSS = document.createElement("style");
-	menuCSS.innerHTML = this.menuCSS
-	menu.prepend(menuCSS);
+    const menuCSS = document.createElement("style");
+    menuCSS.innerHTML = this.menuCSS
+    menu.prepend(menuCSS);
     document.body.appendChild(menu);
     return menu;
   }
@@ -56,10 +58,10 @@ class Menu {
     this.handleButtons();
     this.localStorage.getItem("juice-menu-tab")
       ? this.handleTabChange(
-          this.menu.querySelector(
-            `[data-tab="${this.localStorage.getItem("juice-menu-tab")}"]`
-          )
+        this.menu.querySelector(
+          `[data-tab="${this.localStorage.getItem("juice-menu-tab")}"]`
         )
+      )
       : this.handleTabChange(this.menu.querySelector(".juice.tab"));
   }
 
@@ -181,6 +183,18 @@ class Menu {
     const textareas = this.menu.querySelectorAll("textarea[data-setting]");
     inputs.forEach((input) => {
       input.addEventListener("change", () => this.handleMenuInputChange(input));
+
+      // Real-time update for range inputs
+      if (input.type === "range") {
+        input.addEventListener("input", () => {
+          this.handleMenuInputChange(input);
+          // Update zoom label
+          if (input.id === "zoom_level") {
+            const zoomValue = this.menu.querySelector("#zoom-value");
+            if (zoomValue) zoomValue.textContent = input.value;
+          }
+        });
+      }
     });
 
     textareas.forEach((textarea) => {
@@ -211,6 +225,34 @@ class Menu {
         this.handleMenuSelectChange(select)
       );
     });
+
+    // Preset handlers for hitmarker and killicon
+    this.handlePresets();
+  }
+
+  handlePresets() {
+    const hitmarkerPreset = this.menu.querySelector("#hitmarker_preset");
+    const hitmarkerInput = this.menu.querySelector("[data-setting='hitmarker_link']");
+    const killiconPreset = this.menu.querySelector("#killicon_preset");
+    const killiconInput = this.menu.querySelector("[data-setting='killicon_link']");
+
+    if (hitmarkerPreset && hitmarkerInput) {
+      hitmarkerPreset.addEventListener("change", () => {
+        if (hitmarkerPreset.value) {
+          hitmarkerInput.value = hitmarkerPreset.value;
+          this.handleMenuInputChange(hitmarkerInput);
+        }
+      });
+    }
+
+    if (killiconPreset && killiconInput) {
+      killiconPreset.addEventListener("change", () => {
+        if (killiconPreset.value) {
+          killiconInput.value = killiconPreset.value;
+          this.handleMenuInputChange(killiconInput);
+        }
+      });
+    }
   }
 
   handleTabChanges() {
@@ -281,6 +323,175 @@ class Menu {
     openScriptsFolder.addEventListener("click", () => {
       ipcRenderer.send("open-scripts-folder");
     });
+
+    const restartClient = this.menu.querySelector("#restart-client");
+    restartClient.addEventListener("click", () => {
+      ipcRenderer.send("restart-client");
+    });
+
+    const clearCache = this.menu.querySelector("#clear-cache");
+    clearCache.addEventListener("click", () => {
+      ipcRenderer.sendSync("clear-cache");
+      const text = clearCache.querySelector(".text");
+      text.innerText = "Cache Cleared!";
+      setTimeout(() => {
+        text.innerText = "Clear Cache";
+      }, 2000);
+    });
+
+    // Skin Preview (Image-based)
+    const initSkinPreview = () => {
+      const container = this.menu.querySelector('#threejs-container');
+      if (!container) return;
+
+      const path = require('path');
+      const fs = require('fs');
+
+      // Restore saved skin from settings
+      let selectedSkin = this.settings.current_skin || null;
+
+      // Create preview image element
+      const previewImg = document.createElement('img');
+      previewImg.id = 'skin-preview-img';
+      previewImg.style.cssText = 'width:100%;height:100%;object-fit:contain;image-rendering:pixelated;border-radius:4px;';
+      previewImg.alt = 'Skin Preview';
+
+      // If there's a saved skin, show it
+      if (selectedSkin && fs.existsSync(selectedSkin)) {
+        previewImg.src = `file://${selectedSkin}`;
+        // Update skin name display
+        const skinBasename = path.basename(selectedSkin).replace('-texture.png', '');
+        const nameEl = this.menu.querySelector('#current-skin-name');
+        if (nameEl) nameEl.textContent = skinBasename;
+      }
+      container.appendChild(previewImg);
+
+      // Available skins from assets folder
+      const skinsPath = path.join(__dirname, '../assets/skins');
+      const skinGrid = this.menu.querySelector('#skin-grid');
+
+      // Load skins into grid
+      if (skinGrid && fs.existsSync(skinsPath)) {
+        const skins = fs.readdirSync(skinsPath).filter(f => f.endsWith('-texture.png'));
+
+        skins.forEach(skinFile => {
+          const skinName = skinFile.replace('-texture.png', '');
+          const skinPath = path.join(skinsPath, skinFile);
+
+          const skinItem = document.createElement('div');
+          skinItem.className = 'skin-item';
+          skinItem.style.backgroundImage = `url(file://${skinPath})`;
+          skinItem.dataset.skin = skinName;
+          skinItem.dataset.path = skinPath;
+          skinItem.innerHTML = `<span class="skin-label">${skinName}</span>`;
+
+          // Mark as selected if it's the saved skin
+          if (selectedSkin && skinPath === selectedSkin) {
+            skinItem.classList.add('selected');
+          }
+
+          skinItem.addEventListener('click', () => {
+            // Remove selected from others
+            skinGrid.querySelectorAll('.skin-item').forEach(s => s.classList.remove('selected'));
+            skinItem.classList.add('selected');
+            selectedSkin = skinPath;
+
+            // Update current skin name
+            const nameEl = this.menu.querySelector('#current-skin-name');
+            if (nameEl) nameEl.textContent = skinName;
+
+            // Update preview image
+            if (previewImg) {
+              previewImg.src = `file://${skinPath}`;
+            }
+          });
+
+          skinGrid.appendChild(skinItem);
+        });
+      }
+
+      // Open skins folder
+      const openSkinsFolder = this.menu.querySelector('#open-skins-folder');
+      if (openSkinsFolder) {
+        openSkinsFolder.addEventListener('click', () => {
+          ipcRenderer.send('open-skins-folder');
+        });
+      }
+
+      // Load custom skin
+      const loadCustomBtn = this.menu.querySelector('#load-custom-skin');
+      const customInput = this.menu.querySelector('#custom-skin-input');
+      if (loadCustomBtn && customInput) {
+        loadCustomBtn.addEventListener('click', () => customInput.click());
+        customInput.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            const nameEl = this.menu.querySelector('#current-skin-name');
+            if (nameEl) nameEl.textContent = file.name;
+            selectedSkin = file.path;
+            if (previewImg) {
+              previewImg.src = `file://${file.path}`;
+            }
+          }
+        });
+      }
+
+      // Apply skin - copies to swapper folder
+      const applySkin = this.menu.querySelector('#apply-skin');
+      if (applySkin) {
+        applySkin.addEventListener('click', () => {
+          if (selectedSkin) {
+            const os = require('os');
+            const documentsPath = path.join(os.homedir(), 'Documents', 'JuiceClient', 'swapper', 'assets', 'media');
+
+            // Create directory if needed
+            if (!fs.existsSync(documentsPath)) {
+              fs.mkdirSync(documentsPath, { recursive: true });
+            }
+
+            // Copy skin texture to swapper folder (replace default skin)
+            try {
+              const destPath = path.join(documentsPath, 'character-texture.png');
+              fs.copyFileSync(selectedSkin, destPath);
+
+              this.settings.current_skin = selectedSkin;
+              ipcRenderer.send('update-setting', 'current_skin', selectedSkin);
+
+              const text = applySkin.querySelector('.text');
+              text.innerText = 'Reload to Apply!';
+              setTimeout(() => {
+                text.innerText = 'Apply Skin';
+                // Prompt reload
+                if (confirm('Skin applied! Reload page to see changes?')) {
+                  location.reload();
+                }
+              }, 1000);
+            } catch (e) {
+              console.error('Failed to copy skin:', e);
+              alert('Failed to apply skin: ' + e.message);
+            }
+          }
+        });
+      }
+
+      // Reset skin
+      const resetSkin = this.menu.querySelector('#reset-skin');
+      if (resetSkin) {
+        resetSkin.addEventListener('click', () => {
+          selectedSkin = null;
+          this.settings.current_skin = '';
+          ipcRenderer.send('update-setting', 'current_skin', '');
+          const nameEl = this.menu.querySelector('#current-skin-name');
+          if (nameEl) nameEl.textContent = 'Default';
+          skinGrid.querySelectorAll('.skin-item').forEach(s => s.classList.remove('selected'));
+          const text = resetSkin.querySelector('.text');
+          text.innerText = 'Reset!';
+          setTimeout(() => text.innerText = 'Reset', 2000);
+        });
+      }
+    };
+
+    initSkinPreview();
 
     const importSettings = this.menu.querySelector("#import-settings");
     importSettings.addEventListener("click", () => {

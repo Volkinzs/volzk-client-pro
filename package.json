@@ -1,7 +1,7 @@
 {
-  "name": "juice-client",
-  "version": "1.1.18",
-  "description": "Electron client for Kirka.io",
+  "name": "volzk-client-pro",
+  "version": "1.0.0",
+  "description": "High-performance Electron client for Kirka.io",
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
@@ -9,10 +9,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/irrvlo/juice-client.git"
+    "url": "https://github.com/Volkinzs/volzk-client-pro.git"
   },
-  "keywords": [],
-  "author": "irrvlo",
+  "keywords": [
+    "kirka",
+    "electron",
+    "gaming",
+    "client"
+  ],
+  "author": "Volkinz",
   "license": "ISC",
   "devDependencies": {
     "electron": "^10.4.7",
@@ -23,6 +28,7 @@
     "electron-localshortcut": "^3.2.1",
     "electron-store": "^8.2.0",
     "electron-updater": "^6.2.1",
+    "three": "^0.182.0",
     "v8-compile-cache": "^2.4.0"
   },
   "optionalDependencies": {

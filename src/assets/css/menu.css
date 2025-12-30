@@ -33,6 +33,182 @@
     --opacity-quarter: 0, 0, 0, 0.25;
 }
 
+.menu[data-theme="volzk"] {
+    --dark: 12, 10, 22;
+    --light: 230, 230, 255;
+    --orange: 147, 51, 234;
+    --green: 34, 211, 238;
+    --blue: 99, 102, 241;
+    --red: 244, 63, 94;
+    --hover-dark: 20, 18, 35;
+    --hover-light: 147, 51, 234, 0.15;
+    --border: 147, 51, 234, 0.4;
+    --border-active: 34, 211, 238, 0.7;
+    --shadow: 147, 51, 234, 0.4;
+    --opacity-half: 230, 230, 255, 0.6;
+    --opacity-quarter: 230, 230, 255, 0.3;
+    background: linear-gradient(135deg, rgba(12, 10, 22, 0.95) 0%, rgba(30, 20, 50, 0.95) 50%, rgba(12, 10, 22, 0.95) 100%);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(147, 51, 234, 0.3);
+    box-shadow:
+        0 0 40px rgba(147, 51, 234, 0.3),
+        0 0 80px rgba(34, 211, 238, 0.1),
+        inset 0 0 60px rgba(147, 51, 234, 0.05);
+}
+
+.menu[data-theme="volzk"]::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 0.75rem;
+    background:
+        radial-gradient(ellipse at 20% 0%, rgba(147, 51, 234, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 100%, rgba(34, 211, 238, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.menu[data-theme="volzk"] .sidebar {
+    background: rgba(147, 51, 234, 0.05);
+    border-right: 1px solid rgba(147, 51, 234, 0.2);
+}
+
+.menu[data-theme="volzk"] .juice.tab.active {
+    background: linear-gradient(135deg, rgba(147, 51, 234, 0.3) 0%, rgba(34, 211, 238, 0.1) 100%);
+    border: 1px solid rgba(34, 211, 238, 0.4);
+    box-shadow: 0 0 15px rgba(147, 51, 234, 0.3);
+}
+
+.menu[data-theme="volzk"] .juice.tab:hover {
+    background: rgba(147, 51, 234, 0.15);
+    transform: translateX(3px);
+}
+
+.menu[data-theme="volzk"] .option-group {
+    background: rgba(147, 51, 234, 0.08);
+    border: 1px solid rgba(147, 51, 234, 0.15);
+    backdrop-filter: blur(10px);
+}
+
+.menu[data-theme="volzk"] .checkbox input:checked+label {
+    background: linear-gradient(135deg, rgb(147, 51, 234) 0%, rgb(34, 211, 238) 100%);
+    box-shadow: 0 0 15px rgba(147, 51, 234, 0.5);
+}
+
+.menu[data-theme="volzk"] .juice-button {
+    background: rgba(147, 51, 234, 0.1);
+    border: 1px solid rgba(147, 51, 234, 0.3);
+    transition: all 0.3s ease;
+}
+
+.menu[data-theme="volzk"] .juice-button:hover {
+    background: rgba(147, 51, 234, 0.2);
+    border-color: rgba(34, 211, 238, 0.5);
+    box-shadow: 0 0 20px rgba(147, 51, 234, 0.3);
+    transform: translateY(-2px);
+}
+
+.menu[data-theme="volzk"] input[type="text"],
+.menu[data-theme="volzk"] textarea,
+.menu[data-theme="volzk"] select {
+    background: rgba(12, 10, 22, 0.6);
+    border: 1px solid rgba(147, 51, 234, 0.3);
+    transition: all 0.3s ease;
+}
+
+.menu[data-theme="volzk"] input[type="text"]:focus,
+.menu[data-theme="volzk"] textarea:focus,
+.menu[data-theme="volzk"] select:focus {
+    border-color: rgba(34, 211, 238, 0.6);
+    box-shadow: 0 0 15px rgba(34, 211, 238, 0.2);
+}
+
+.menu[data-theme="volzk"] .range::-webkit-slider-thumb {
+    background: linear-gradient(135deg, rgb(147, 51, 234) 0%, rgb(34, 211, 238) 100%);
+    box-shadow: 0 0 10px rgba(147, 51, 234, 0.5);
+}
+
+.menu[data-theme="volzk"] .about-discord {
+    background: linear-gradient(135deg, rgb(147, 51, 234) 0%, rgb(99, 102, 241) 100%);
+}
+
+.menu[data-theme="volzk"] .about-github {
+    background: linear-gradient(135deg, rgb(30, 20, 50) 0%, rgb(50, 40, 80) 100%);
+}
+
+/* Neon Theme - Green/Pink cyberpunk */
+.menu[data-theme="neon"] {
+    --dark: 10, 10, 15;
+    --light: 255, 255, 255;
+    --orange: 255, 0, 255;
+    --green: 0, 255, 128;
+    --blue: 0, 191, 255;
+    --red: 255, 0, 85;
+    --hover-dark: 20, 20, 30;
+    --hover-light: 255, 0, 255, 0.1;
+    --border: 0, 255, 128, 0.4;
+    --border-active: 255, 0, 255, 0.6;
+    --shadow: 0, 255, 128, 0.3;
+    --opacity-half: 255, 255, 255, 0.6;
+    --opacity-quarter: 255, 255, 255, 0.3;
+    background: linear-gradient(135deg, rgba(10, 10, 15, 0.95) 0%, rgba(20, 15, 25, 0.95) 100%);
+    box-shadow: 0 0 30px rgba(0, 255, 128, 0.2), 0 0 60px rgba(255, 0, 255, 0.1);
+}
+
+.menu[data-theme="neon"] .checkbox input:checked+label {
+    background: linear-gradient(135deg, rgb(0, 255, 128) 0%, rgb(255, 0, 255) 100%);
+    box-shadow: 0 0 15px rgba(0, 255, 128, 0.5);
+}
+
+/* Minimal Theme - Clean black/white */
+.menu[data-theme="minimal"] {
+    --dark: 18, 18, 18;
+    --light: 245, 245, 245;
+    --orange: 245, 245, 245;
+    --green: 100, 200, 100;
+    --blue: 100, 150, 200;
+    --red: 200, 80, 80;
+    --hover-dark: 28, 28, 28;
+    --hover-light: 255, 255, 255, 0.05;
+    --border: 255, 255, 255, 0.1;
+    --border-active: 255, 255, 255, 0.3;
+    --shadow: 0, 0, 0, 0.5;
+    --opacity-half: 245, 245, 245, 0.5;
+    --opacity-quarter: 245, 245, 245, 0.25;
+    border-radius: 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.menu[data-theme="minimal"] .option-group {
+    border-radius: 0;
+}
+
+/* Ocean Theme - Blue/Turquoise */
+.menu[data-theme="ocean"] {
+    --dark: 10, 25, 47;
+    --light: 224, 247, 250;
+    --orange: 0, 188, 212;
+    --green: 0, 230, 180;
+    --blue: 33, 150, 243;
+    --red: 244, 67, 54;
+    --hover-dark: 15, 35, 60;
+    --hover-light: 0, 188, 212, 0.1;
+    --border: 0, 188, 212, 0.3;
+    --border-active: 0, 230, 180, 0.5;
+    --shadow: 0, 188, 212, 0.3;
+    --opacity-half: 224, 247, 250, 0.6;
+    --opacity-quarter: 224, 247, 250, 0.3;
+    background: linear-gradient(180deg, rgba(10, 25, 47, 0.95) 0%, rgba(0, 40, 70, 0.95) 100%);
+    box-shadow: 0 0 40px rgba(0, 188, 212, 0.2);
+}
+
+.menu[data-theme="ocean"] .checkbox input:checked+label {
+    background: linear-gradient(135deg, rgb(0, 188, 212) 0%, rgb(0, 230, 180) 100%);
+}
+
 .menu[data-theme="juice"] {
     --dark: 255, 147, 45;
     --light: 255, 239, 224;
@@ -839,4 +1015,126 @@
 
 #modal .close:hover {
     color: rgba(var(--light));
+}
+
+/* Skin Editor Styles - Three.js */
+.skin-editor-3d {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem !important;
+}
+
+.skin-preview-3d {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.skin-preview-title {
+    font-size: 0.8rem;
+    color: rgba(var(--opacity-half));
+    margin-bottom: 0.5rem;
+}
+
+.threejs-container {
+    width: 160px;
+    height: 200px;
+    background: rgba(var(--dark), 0.5);
+    border-radius: 0.5rem;
+    border: 1px solid rgba(var(--border));
+    cursor: grab;
+    overflow: hidden;
+}
+
+.threejs-container:active {
+    cursor: grabbing;
+}
+
+.skin-rotate-hint {
+    font-size: 0.65rem;
+    color: rgba(var(--opacity-quarter));
+    margin-top: 0.25rem;
+}
+
+.skin-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.current-skin {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.current-skin .label {
+    font-size: 0.75rem;
+    color: rgba(var(--opacity-half));
+}
+
+.current-skin .skin-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: rgba(var(--green));
+}
+
+.skin-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.skin-actions .juice-button {
+    flex: 1;
+}
+
+/* Skin Grid */
+.skin-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    padding: 1rem;
+    background: rgba(var(--dark), 0.3);
+    border-radius: 0.5rem;
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.skin-item {
+    aspect-ratio: 1;
+    background: rgba(var(--dark), 0.5);
+    border: 2px solid rgba(var(--border));
+    border-radius: 0.35rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.skin-item:hover {
+    border-color: rgba(var(--orange));
+    transform: scale(1.05);
+}
+
+.skin-item.selected {
+    border-color: rgba(var(--green));
+    box-shadow: 0 0 10px rgba(var(--green), 0.5);
+}
+
+.skin-item .skin-label {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    font-size: 0.55rem;
+    padding: 2px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-radius: 0 0 0.25rem 0.25rem;
 }

@@ -72,6 +72,32 @@ ipcMain.on("reset-juice-settings", () => {
   app.quit();
 });
 
+ipcMain.on("restart-client", () => {
+  app.relaunch();
+  app.quit();
+});
+
+ipcMain.on("clear-cache", async (e) => {
+  const ses = require("electron").session.defaultSession;
+  await ses.clearCache();
+  await ses.clearStorageData({
+    storages: ["appcache", "cookies", "filesystem", "indexdb", "localstorage", "shadercache", "websql", "serviceworkers", "cachestorage"]
+  });
+  e.returnValue = true;
+});
+
+ipcMain.on("open-skins-folder", () => {
+  const skinsPath = path.join(
+    app.getPath("documents"),
+    "JuiceClient/skins"
+  );
+
+  if (!fs.existsSync(skinsPath)) {
+    fs.mkdirSync(skinsPath, { recursive: true });
+  }
+  shell.openPath(skinsPath);
+});
+
 let gameWindow;
 
 applySwitches(settings);
@@ -80,7 +106,7 @@ const createWindow = () => {
   gameWindow = new BrowserWindow({
     fullscreen: settings.auto_fullscreen,
     icon: path.join(__dirname, "../assets/img/icon.png"),
-    title: "Juice Client",
+    title: "Volzk Client PRO",
     width: 1280,
     height: 720,
     show: false,
@@ -91,6 +117,8 @@ const createWindow = () => {
       webSecurity: false,
       preload: path.join(__dirname, "../preload/game.js"),
     },
+    // Spoof User-Agent to evade checks
+    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
   });
 
   const scriptsPath = path.join(

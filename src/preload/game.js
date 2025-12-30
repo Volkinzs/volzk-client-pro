@@ -36,18 +36,211 @@ const originalConsole = {
   trace: console.trace.bind(console),
 };
 
+// === MACROS (Auto Jump, Auto Crouch) ===
+
+let autoJumpEnabled = !!settings.auto_jump;
+let autoCrouchEnabled = !!settings.auto_crouch;
+
+// Auto Jump Logic
+let jumpTimeout;
+const loopAutoJump = () => {
+  if (autoJumpEnabled && document.hasFocus()) {
+    const spaceDown = new KeyboardEvent("keydown", { key: " ", code: "Space", keyCode: 32, bubbles: true });
+    const spaceUp = new KeyboardEvent("keyup", { key: " ", code: "Space", keyCode: 32, bubbles: true });
+    const activeEl = document.activeElement || document;
+    activeEl.dispatchEvent(spaceDown);
+    setTimeout(() => activeEl.dispatchEvent(spaceUp), 10);
+  }
+  if (autoJumpEnabled) {
+    clearTimeout(jumpTimeout);
+    jumpTimeout = setTimeout(loopAutoJump, parseInt(settings.auto_jump_speed) || 50);
+  }
+};
+if (autoJumpEnabled) loopAutoJump();
+
+// Auto Crouch Logic
+let crouchTimeout;
+const loopAutoCrouch = () => {
+  if (autoCrouchEnabled && document.hasFocus()) {
+    const shiftDown = new KeyboardEvent("keydown", { key: "Shift", code: "ShiftLeft", keyCode: 16, bubbles: true });
+    const shiftUp = new KeyboardEvent("keyup", { key: "Shift", code: "ShiftLeft", keyCode: 16, bubbles: true });
+    const activeEl = document.activeElement || document.body || window;
+    activeEl.dispatchEvent(shiftDown);
+    setTimeout(() => activeEl.dispatchEvent(shiftUp), Math.min(200, parseInt(settings.auto_crouch_speed) / 2));
+  }
+  if (autoCrouchEnabled) {
+    clearTimeout(crouchTimeout);
+    crouchTimeout = setTimeout(loopAutoCrouch, parseInt(settings.auto_crouch_speed) || 300);
+  }
+};
+if (autoCrouchEnabled) loopAutoCrouch();
+
+// Settings Listener for Macros
+document.addEventListener("juice-settings-changed", ({ detail }) => {
+  if (detail.setting === "auto_jump") {
+    autoJumpEnabled = detail.value;
+    if (autoJumpEnabled) loopAutoJump();
+    else clearTimeout(jumpTimeout);
+    console.log('[Volzk] Auto Jump toggled:', autoJumpEnabled);
+  } else if (detail.setting === "auto_crouch") {
+    autoCrouchEnabled = detail.value;
+    if (autoCrouchEnabled) loopAutoCrouch();
+    else clearTimeout(crouchTimeout);
+    console.log('[Volzk] Auto Crouch toggled:', autoCrouchEnabled);
+  } else if (detail.setting === "auto_jump_speed") {
+    settings.auto_jump_speed = detail.value;
+  } else if (detail.setting === "auto_crouch_speed") {
+    settings.auto_crouch_speed = detail.value;
+  }
+});
+// === END MACROS ===
+
+
+// === SKIN CUSTOMIZATION ===
+let gameScene = null;
+let customSkinTexture = null;
+let customSkinEnabled = !!settings.current_skin;
+
+// Load custom skin texture
+if (settings.current_skin && typeof THREE !== 'undefined') {
+  setTimeout(() => {
+    try {
+      const loader = new THREE.TextureLoader();
+      loader.load(`file://${settings.current_skin}`, (texture) => {
+        texture.flipY = false;
+        texture.magFilter = THREE.NearestFilter;
+        texture.minFilter = THREE.NearestFilter;
+        customSkinTexture = texture;
+        console.log('[Volzk] Custom skin texture loaded');
+      });
+    } catch (e) {
+      console.error('[Volzk] Failed to load skin texture:', e);
+    }
+  }, 3000);
+}
+
+// Apply custom skin in animation loop
+function applySkinLoop() {
+  requestAnimationFrame(applySkinLoop);
+
+  if (!gameScene || !customSkinTexture || !customSkinEnabled) return;
+
+  try {
+    const systems = gameScene.entity?._entityManager?.mWnwM?.systemManager?._systems;
+    if (!systems) return;
+
+    // Apply to all player entities (animation entities)
+    const animEntities = systems["2"]?._queries?.animationEntities?.entities;
+    if (animEntities) {
+      for (let i = 0; i < animEntities.length; i++) {
+        try {
+          const mat = animEntities[i]._components?.[0]?.value?.children?.[0]?.children?.[0]?.children?.[1]?.material;
+          if (mat && mat.map !== customSkinTexture) {
+            mat.map = customSkinTexture;
+            mat.needsUpdate = true;
+          }
+        } catch { }
+      }
+    }
+  } catch { }
+}
+
+// Start skin application loop after game loads
+setTimeout(() => {
+  if (customSkinEnabled) {
+    applySkinLoop();
+    console.log('[Volzk] Skin application loop started');
+  }
+}, 5000);
+// === END SKIN CUSTOMIZATION ===
+
 document.addEventListener("DOMContentLoaded", async () => {
   console.log = originalConsole.log;
   console.warn = originalConsole.warn;
   console.error = originalConsole.error;
   console.info = originalConsole.info;
   console.trace = originalConsole.trace;
-  
+
   const menu = new Menu();
   menu.init();
 
   opener();
   customReqScripts(settings);
+
+  // FPS Counter
+  const initFPSCounter = () => {
+    let lastTime = performance.now();
+    let frames = 0;
+    let fps = 0;
+
+    const fpsContainer = document.createElement("div");
+    fpsContainer.id = "volzk-fps-counter";
+    fpsContainer.style.cssText = `
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.7);
+      color: #00ffc8;
+      padding: 5px 12px;
+      border-radius: 5px;
+      font-family: 'Consolas', monospace;
+      font-size: 14px;
+      font-weight: bold;
+      z-index: 999999;
+      border: 1px solid rgba(147, 51, 234, 0.5);
+      box-shadow: 0 0 10px rgba(147, 51, 234, 0.3);
+      display: ${settings.show_fps ? 'block' : 'none'};
+      pointer-events: none;
+    `;
+    fpsContainer.innerHTML = '<span id="fps-value">0</span> FPS';
+    document.body.appendChild(fpsContainer);
+
+    const fpsValue = fpsContainer.querySelector("#fps-value");
+
+    const updateFPS = () => {
+      frames++;
+      const currentTime = performance.now();
+      if (currentTime - lastTime >= 1000) {
+        fps = frames;
+        frames = 0;
+        lastTime = currentTime;
+        fpsValue.textContent = fps;
+
+        // Color based on FPS
+        if (fps >= 60) fpsValue.style.color = "#00ffc8";
+        else if (fps >= 30) fpsValue.style.color = "#ffb914";
+        else fpsValue.style.color = "#ff4757";
+      }
+      requestAnimationFrame(updateFPS);
+    };
+    requestAnimationFrame(updateFPS);
+
+    // Listen for setting changes
+    document.addEventListener("juice-settings-changed", ({ detail }) => {
+      if (detail.setting === "show_fps") {
+        fpsContainer.style.display = detail.value ? "block" : "none";
+      }
+    });
+  };
+  initFPSCounter();
+
+  // Zoom Control
+  const initZoomControl = () => {
+    const { webFrame } = require("electron");
+
+    // Apply initial zoom
+    const initialZoom = settings.zoom_level / 100;
+    webFrame.setZoomFactor(initialZoom);
+
+    // Listen for setting changes
+    document.addEventListener("juice-settings-changed", ({ detail }) => {
+      if (detail.setting === "zoom_level") {
+        const zoomFactor = detail.value / 100;
+        webFrame.setZoomFactor(zoomFactor);
+      }
+    });
+  };
+  initZoomControl();
 
   const fetchAll = async () => {
     const [customizations, user] = await Promise.all([
@@ -384,12 +577,28 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (!settings.lobby_keybind_reminder)
         styles.push("#juice-keybind-reminder { display: none; }");
 
+      // Crosshair color
+      const colorMap = {
+        red: "#ff4444",
+        green: "#44ff44",
+        cyan: "#00ffff",
+        yellow: "#ffff00",
+        pink: "#ff44ff",
+        white: "#ffffff"
+      };
+      if (settings.crosshair_color && settings.crosshair_color !== "none") {
+        const color = colorMap[settings.crosshair_color] || settings.crosshair_color;
+        styles.push(`.crosshair-static { filter: drop-shadow(0 0 2px ${color}) !important; }`);
+        styles.push(`.crosshair-static img { filter: brightness(0) saturate(100%) drop-shadow(0 0 1px ${color}) !important; }`);
+      }
+
       addedStyles.innerHTML = styles.join("");
     };
 
     document.addEventListener("juice-settings-changed", (e) => {
       const relevantSettings = [
         "perm_crosshair",
+        "crosshair_color",
         "hide_chat",
         "hide_interface",
         "skip_loading",
