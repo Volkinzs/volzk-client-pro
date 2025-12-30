@@ -36,6 +36,54 @@ const originalConsole = {
   trace: console.trace.bind(console),
 };
 
+// === CANVAS FINGERPRINT SPOOFING ===
+const originalToDataURL = HTMLCanvasElement.prototype.toDataURL;
+HTMLCanvasElement.prototype.toDataURL = function (type) {
+  if (type === 'image/png' || type === 'image/jpeg') {
+    try {
+      const ctx = this.getContext('2d');
+      if (ctx && this.width > 0 && this.height > 0) {
+        const imageData = ctx.getImageData(0, 0, this.width, this.height);
+        // Add subtle noise to randomize fingerprint
+        for (let i = 0; i < imageData.data.length; i += 4) {
+          imageData.data[i] ^= (Math.random() * 2) | 0;     // R
+          imageData.data[i + 1] ^= (Math.random() * 2) | 0;   // G
+          imageData.data[i + 2] ^= (Math.random() * 2) | 0;   // B
+        }
+        ctx.putImageData(imageData, 0, 0);
+      }
+    } catch (e) { /* Ignore errors for WebGL canvas */ }
+  }
+  return originalToDataURL.apply(this, arguments);
+};
+console.log('[Volzk] Canvas Fingerprint Spoofing enabled');
+
+// === WEBGL FINGERPRINT SPOOFING ===
+const spoofedVendor = "Intel Inc.";
+const spoofedRenderer = "Intel Iris OpenGL Engine";
+
+const getParameterProxyHandler = {
+  apply(target, thisArg, args) {
+    if (args[0] === 37445) return spoofedVendor;    // UNMASKED_VENDOR_WEBGL
+    if (args[0] === 37446) return spoofedRenderer;  // UNMASKED_RENDERER_WEBGL
+    return Reflect.apply(target, thisArg, args);
+  }
+};
+
+if (typeof WebGLRenderingContext !== 'undefined') {
+  WebGLRenderingContext.prototype.getParameter = new Proxy(
+    WebGLRenderingContext.prototype.getParameter,
+    getParameterProxyHandler
+  );
+}
+if (typeof WebGL2RenderingContext !== 'undefined') {
+  WebGL2RenderingContext.prototype.getParameter = new Proxy(
+    WebGL2RenderingContext.prototype.getParameter,
+    getParameterProxyHandler
+  );
+}
+console.log('[Volzk] WebGL Fingerprint Spoofing enabled');
+
 // === MACROS (Auto Jump, Auto Crouch) ===
 
 let autoJumpEnabled = !!settings.auto_jump;

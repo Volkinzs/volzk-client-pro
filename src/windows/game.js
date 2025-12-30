@@ -121,21 +121,6 @@ const createWindow = () => {
     userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
   });
 
-  // Manual Proxy Logic (Bypass IP Ban)
-  if (settings.proxy_rules && settings.proxy_rules.trim() !== "") {
-    let proxyConfig = settings.proxy_rules.trim();
-
-    // VALIDATION: Must contain ':' (IP:PORT)
-    if (proxyConfig.includes(":")) {
-      console.log('[Volzk] Setting Custom Proxy:', proxyConfig);
-      gameWindow.webContents.session.setProxy({ proxyRules: proxyConfig })
-        .then(() => console.log('[Volzk] Custom Proxy applied successfully'))
-        .catch(err => console.error('[Volzk] Proxy error:', err));
-    } else {
-      console.error('[Volzk] Invalid Proxy Format (Missing Port). Ignoring to prevent Black Screen.');
-    }
-  }
-
   const scriptsPath = path.join(
     app.getPath("documents"),
     "JuiceClient",

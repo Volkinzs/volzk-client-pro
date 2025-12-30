@@ -4,7 +4,7 @@ const fs = require('fs');
 const os = require('os');
 
 // Electron Store default path logic approximation
-const configPath = path.join(os.homedir(), '.config', 'volzk-client', 'config.json');
+const configPath = path.join(os.homedir(), '.config', 'volzk-client-pro', 'config.json');
 
 console.log('Checking for config file at:', configPath);
 
