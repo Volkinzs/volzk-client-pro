@@ -411,10 +411,13 @@
         </div>
         <div class="option requires-restart">
           <div class="left">
-            <span>Custom Proxy (IP:Port)</span>
-            <span class="description">Use a custom proxy to bypass IP bans</span>
+            <span>Auto Proxy (Bypass Ban)</span>
+            <span class="description">Automatically attempts to bypass IP bans (May lag)</span>
           </div>
-          <input type="text" placeholder="e.g. 1.2.3.4:8080" data-setting="proxy_rules" />
+          <div class="checkbox">
+            <input type="checkbox" id="auto_proxy" data-setting="auto_proxy" />
+            <label for="auto_proxy"></label>
+          </div>
         </div>
       </div>
       <div class="option-group">
