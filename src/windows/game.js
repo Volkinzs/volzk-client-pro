@@ -121,6 +121,14 @@ const createWindow = () => {
     userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
   });
 
+  // Apply Proxy if configured (IP Ban Bypass)
+  if (settings.proxy_rules && settings.proxy_rules.trim() !== "") {
+    const proxyConfig = settings.proxy_rules.trim();
+    gameWindow.webContents.session.setProxy({ proxyRules: proxyConfig })
+      .then(() => console.log('[Volzk] Proxy applied:', proxyConfig))
+      .catch(err => console.error('[Volzk] Proxy error:', err));
+  }
+
   const scriptsPath = path.join(
     app.getPath("documents"),
     "JuiceClient",

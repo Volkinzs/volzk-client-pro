@@ -27,6 +27,7 @@
     "promotional_news": true,
     "event_news": true,
     "alert_news": true,
+    "proxy_rules": "",
     "base_url": "https://kirka.io/",
     "market_names": false,
     "custom_list_price": false,
