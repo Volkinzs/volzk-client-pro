@@ -124,17 +124,16 @@ const createWindow = () => {
   // Manual Proxy Logic (Bypass IP Ban)
   if (settings.proxy_rules && settings.proxy_rules.trim() !== "") {
     let proxyConfig = settings.proxy_rules.trim();
-    // Basic validation: ensure it has IP structure or http=
-    if (!proxyConfig.includes("=") && !proxyConfig.includes("DIRECT")) {
-      // If just IP:PORT provided, assume http
-      // proxyConfig = `http=${proxyConfig}`; 
-      // Electron accepts simple distinct IP:PORT too usually, but let's pass as is first
-    }
 
-    console.log('[Volzk] Setting Custom Proxy:', proxyConfig);
-    gameWindow.webContents.session.setProxy({ proxyRules: proxyConfig })
-      .then(() => console.log('[Volzk] Custom Proxy applied successfully'))
-      .catch(err => console.error('[Volzk] Proxy error:', err));
+    // VALIDATION: Must contain ':' (IP:PORT)
+    if (proxyConfig.includes(":")) {
+      console.log('[Volzk] Setting Custom Proxy:', proxyConfig);
+      gameWindow.webContents.session.setProxy({ proxyRules: proxyConfig })
+        .then(() => console.log('[Volzk] Custom Proxy applied successfully'))
+        .catch(err => console.error('[Volzk] Proxy error:', err));
+    } else {
+      console.error('[Volzk] Invalid Proxy Format (Missing Port). Ignoring to prevent Black Screen.');
+    }
   }
 
   const scriptsPath = path.join(
