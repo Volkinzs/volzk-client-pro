@@ -121,24 +121,19 @@ const createWindow = () => {
     userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
   });
 
-  // Auto Proxy Logic (Bypass IP Ban)
-  if (settings.auto_proxy) {
-    // List of public proxies (Mix of US/EU/BR to ensure connectivity)
-    const publicProxies = [
-      "http://20.206.106.192:80",
-      "http://20.210.113.32:80",
-      "http://51.158.154.173:3128",
-      "http://51.159.115.233:3128",
-      "http://198.199.86.11:8080",
-      "http://165.22.236.21:80",
-      "http://143.198.228.243:80"
-    ];
+  // Manual Proxy Logic (Bypass IP Ban)
+  if (settings.proxy_rules && settings.proxy_rules.trim() !== "") {
+    let proxyConfig = settings.proxy_rules.trim();
+    // Basic validation: ensure it has IP structure or http=
+    if (!proxyConfig.includes("=") && !proxyConfig.includes("DIRECT")) {
+      // If just IP:PORT provided, assume http
+      // proxyConfig = `http=${proxyConfig}`; 
+      // Electron accepts simple distinct IP:PORT too usually, but let's pass as is first
+    }
 
-    const randomProxy = publicProxies[Math.floor(Math.random() * publicProxies.length)];
-
-    console.log('[Volzk] Enabling Auto Proxy to bypass IP Ban...');
-    gameWindow.webContents.session.setProxy({ proxyRules: randomProxy })
-      .then(() => console.log('[Volzk] Auto Proxy SET:', randomProxy))
+    console.log('[Volzk] Setting Custom Proxy:', proxyConfig);
+    gameWindow.webContents.session.setProxy({ proxyRules: proxyConfig })
+      .then(() => console.log('[Volzk] Custom Proxy applied successfully'))
       .catch(err => console.error('[Volzk] Proxy error:', err));
   }
 
