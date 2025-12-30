@@ -411,6 +411,32 @@
         </div>
       </div>
       <div class="option-group">
+        <div class="option requires-restart">
+          <div class="left">
+            <span>IP Bypass (Tor/SOCKS5)</span>
+            <span class="description">Route all traffic via Tor or SOCKS5 proxy</span>
+          </div>
+          <div class="checkbox">
+            <input type="checkbox" id="ip_bypass_enabled" data-setting="ip_bypass_enabled" />
+            <label for="ip_bypass_enabled"></label>
+          </div>
+        </div>
+        <div class="option requires-restart">
+          <div class="left">
+            <span>SOCKS5 Host</span>
+            <span class="description">Default: 127.0.0.1 (localhost)</span>
+          </div>
+          <input type="text" placeholder="127.0.0.1" data-setting="socks5_host" />
+        </div>
+        <div class="option requires-restart">
+          <div class="left">
+            <span>SOCKS5 Port</span>
+            <span class="description">9050=Tor, 1080=generic SOCKS5</span>
+          </div>
+          <input type="number" placeholder="9050" data-setting="socks5_port" />
+        </div>
+      </div>
+      <div class="option-group">
         <div class="option">
           <button id="open-swapper-folder" class="juice-button">
             <span class="text">Open Swapper Folder</span>
